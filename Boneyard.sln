@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boneyard", "Text Editor\Boneyard.csproj", "{CFF4F63E-709C-4CA3-81B6-AEF216B41D74}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CFF4F63E-709C-4CA3-81B6-AEF216B41D74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFF4F63E-709C-4CA3-81B6-AEF216B41D74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFF4F63E-709C-4CA3-81B6-AEF216B41D74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFF4F63E-709C-4CA3-81B6-AEF216B41D74}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {79EBBB54-2374-4585-9F52-0C5CA2CF375A}
+	EndGlobalSection
+EndGlobal
