@@ -22,7 +22,7 @@ namespace Text_Editor
             return length;
         }
 
-        public static List<String> tokenise(String input)
+        public static List<String> tokenise(String input, FileType fileType)
         {
             List<String> res = new List<string>();
             String token = "";
@@ -58,6 +58,12 @@ namespace Text_Editor
                             token += elem;
                         } else if (elem == '/' && input.Length > i + 1 && input.ElementAt(i + 1) == '/') {
                             // is a comment
+                            token += input.Substring(i);
+                            res.Add(token);
+                            token = "";
+                            break;
+                        } else if (fileType == FileType.PROLOG && elem == '%') {
+                            // is a Prolog comment
                             token += input.Substring(i);
                             res.Add(token);
                             token = "";

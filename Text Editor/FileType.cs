@@ -11,6 +11,7 @@ namespace Text_Editor
         TEXT,
         BAREBONES,
         JAVA,
-        CSHARP
+        CSHARP,
+        PROLOG
     }
 }

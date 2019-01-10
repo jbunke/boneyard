@@ -234,6 +234,11 @@ namespace Text_Editor
                               windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".cs".Length)
                             {
                                 windows.ElementAt(activeIndex).getActive().setFileType(FileType.CSHARP);
+                            } else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".pl") &&
+                            windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".pl") ==
+                            windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".-l".Length)
+                            {
+                                windows.ElementAt(activeIndex).getActive().setFileType(FileType.PROLOG);
                             }
                         }
 

@@ -65,6 +65,10 @@ namespace Text_Editor
               filepath.LastIndexOf(".cs") == filepath.Length - ".cs".Length)
             {
                 fileType = FileType.CSHARP;
+            } else if (filepath.Contains(".pl") &&
+            filepath.LastIndexOf(".pl") == filepath.Length - ".pl".Length)
+            {
+                fileType = FileType.PROLOG;
             }
 
             uFlag = true;
@@ -202,10 +206,14 @@ namespace Text_Editor
                 }
 
                 // Text
-                g.DrawImage(bitmap, 0, 0);
-
                 if (fileType != FileType.TEXT)
+                {
                     g.DrawImage(highlight, 0, 0);
+                }
+                else
+                {
+                    g.DrawImage(bitmap, 0, 0);
+                }
             }
 
             return toRender;
@@ -272,7 +280,7 @@ namespace Text_Editor
             if (fileType != FileType.TEXT)
             {
                 // Syntax highlighting
-                highlight = new Bitmap(bitmap);
+                highlight = new Bitmap(bitmap.Width, bitmap.Height);
 
                 using (Graphics g = Graphics.FromImage(highlight))
                 {
@@ -280,13 +288,30 @@ namespace Text_Editor
                         i <= topLine + printableL && i < text.Count; i++)
                     {
                         String line = text.ElementAt(i);
-                        List<String> tokens = Tokeniser.tokenise(line);
+                        List<String> tokens = Tokeniser.tokenise(line, fileType);
                         List<String>[] keywords = Settings.keywords(fileType);
+
+                        String lineNum = (i + 1).ToString();
+                        while (lineNum.Length < 5)
+                        {
+                            if (lineNum.Length % 2 == 0)
+                            {
+                                lineNum = " " + lineNum;
+                            }
+                            else
+                            {
+                                lineNum += " ";
+                            }
+                        }
+
+                        g.DrawImage(TextFont.def.print(lineNum,
+                            textSize, Settings.getColor(Settings.Purpose.TEXT)),
+                            3, (int)((i - topLine) * (76 * (textSize / 40f))));
 
                         for (int j = 0; j < tokens.Count; j++)
                         {
                             String token = tokens.ElementAt(j);
-                            Color c = Color.FromArgb(0, 0, 0);
+                            Color c = Color.FromArgb(255, 255, 255);
 
                             for (int k = 0; k < keywords.Length; k++)
                             {
@@ -305,7 +330,7 @@ namespace Text_Editor
                             }
 
                             // if no keyword found, could still be string or number
-                            if (c == Color.FromArgb(0, 0, 0))
+                            if (c == Color.FromArgb(255, 255, 255))
                             {
                                 if ((token.Length > 1 && token.ElementAt(0) == '"' &&
                                     token.ElementAt(token.Length - 1) == '"') ||
@@ -313,28 +338,41 @@ namespace Text_Editor
                                     token.ElementAt(token.Length - 1) == '\''))
                                 {
                                     c = Settings.getColor(Settings.Purpose.STRING);
-                                } else if (Tokeniser.isNumber(token))
+                                }
+                                else if (Tokeniser.isNumber(token))
                                 {
                                     c = Settings.getColor(Settings.Purpose.NUM);
-                                } else if (token.Length >= 2 && token.IndexOf("//") == 0)
-                                {
-                                    c = Settings.getColor(Settings.Purpose.COMMENT);
+                                }
+                                else {
+                                    // Comment possibility
+                                    switch (fileType)
+                                    {
+                                        case FileType.PROLOG:
+                                            if (token.Length >= 1 && token.IndexOf("%") == 0)
+                                            {
+                                                c = Settings.getColor(Settings.Purpose.COMMENT);
+                                            }
+                                            break;
+                                        default:
+                                            if (token.Length >= 2 && token.IndexOf("//") == 0)
+                                            {
+                                                c = Settings.getColor(Settings.Purpose.COMMENT);
+                                            }
+                                            break;
+                                    }
                                 }
                             }
 
-                            if (c != Color.FromArgb(0, 0, 0))
+                            int x = Tokeniser.column(tokens, j);
+                            while (x < firstColumn)
                             {
-                                int x = Tokeniser.column(tokens, j);
-                                while (x < firstColumn)
-                                {
-                                    if (token.Length > 0)
-                                        token = token.Substring(1);
-                                    x++;
-                                }
-                                g.DrawImage(TextFont.def.print(token, textSize, c),
-                                    3 + (int)((x + 6 - firstColumn) * (48 * (textSize / 40f))),
-                                    (int)((i - topLine) * (76 * (textSize / 40f))));
+                                if (token.Length > 0)
+                                    token = token.Substring(1);
+                                x++;
                             }
+                            g.DrawImage(TextFont.def.print(token, textSize, c),
+                                3 + (int)((x + 6 - firstColumn) * (48 * (textSize / 40f))),
+                                (int)((i - topLine) * (76 * (textSize / 40f))));
                         }
                     }
                 }

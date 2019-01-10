@@ -106,6 +106,17 @@ namespace Text_Editor
             return Color.FromArgb(0, 0, 0);
         }
 
+        public static String inlineComment(FileType fileType)
+        {
+            switch (fileType)
+            {
+                case FileType.PROLOG:
+                    return "%";
+                default:
+                    return "//";
+            }
+        }
+
         public static List<String>[] keywords(FileType fileType)
         {
             List<String>[] kw = new List<string>[0];
