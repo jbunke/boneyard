@@ -32,12 +32,13 @@ namespace Text_Editor
         private int printableC;
         private Bitmap bitmap;
         private Bitmap highlight;
+        private int autoIndex;
 
         private Context(Window window)
         {
             text = new List<string>() { "" };
             cursor = new TextCursor();
-            filepath = "!!!"; // !!! is default; no set filepath // if context is opened from file, use different constructor
+            filepath = "!!!"; // !!! is default; no set filepath
             this.window = window;
             fileType = FileType.TEXT;
 
@@ -46,6 +47,7 @@ namespace Text_Editor
             textSize = Settings.TEXT_SIZE;
             topLine = 0;
             firstColumn = 0;
+            autoIndex = 0;
 
             update();
         }
@@ -81,6 +83,7 @@ namespace Text_Editor
             textSize = Settings.TEXT_SIZE;
             topLine = 0;
             firstColumn = 0;
+            autoIndex = 0;
 
             update();
         }
@@ -299,6 +302,11 @@ namespace Text_Editor
                         a.FillRectangle(new SolidBrush(
                             Settings.getColor(Settings.Purpose.SYNTAX1)),
                             0, 0, autoW, autoH);
+
+                        a.FillRectangle(new SolidBrush(
+                            Settings.getColor(Settings.Purpose.SYNTAX2)),
+                            0, (int)(autoIndex * (76 * (textSize / 40f))), autoW,
+                            (int)(76 * (textSize / 40f)));
 
                         for (int i = 0; i < autos.Count; i++)
                         {
@@ -726,6 +734,7 @@ namespace Text_Editor
         public void type(String toType)
         {
             collapse();
+            autoIndex = 0;
 
             int l = cursor.getLine();
             int c = cursor.getColumn();
@@ -756,9 +765,11 @@ namespace Text_Editor
                 fileType != FileType.TEXT && autos.Count != 0)
             {
                 // smartTyping("tab");
-                type(autos.ElementAt(0));
+                type(autos.ElementAt(autoIndex));
             } else
             {
+                autoIndex = 0;
+
                 String realTab = tab;
                 String copy = text.ElementAt(l);
 
@@ -916,6 +927,7 @@ namespace Text_Editor
         public void paste(String toPaste)
         {
             collapse();
+            autoIndex = 0;
 
             List<String> pasting = new List<string>();
 
@@ -1043,6 +1055,7 @@ namespace Text_Editor
         public void enter(bool fromZeroC)
         {
             collapse();
+            autoIndex = 0;
 
             int l = cursor.getLine();
             int c = cursor.getColumn();
@@ -1067,20 +1080,28 @@ namespace Text_Editor
             int l = cursor.getLine();
             int c = cursor.getColumn();
 
-            if (text.Count > l + 1)
+            if (Settings.SMART_TYPING && fileType != FileType.TEXT && autocompletes().Count > 0) {
+                List<String> autos = autocompletes();
+                if (autoIndex + 1 < autos.Count)
+                    autoIndex++;
+            } else
             {
-                if (text.ElementAt(l + 1).Length >= c)
+                if (text.Count > l + 1)
                 {
-                    cursor.set(l + 1, c);
-                } else
-                {
-                    cursor.set(l + 1, text.ElementAt(l + 1).Length);
+                    if (text.ElementAt(l + 1).Length >= c)
+                    {
+                        cursor.set(l + 1, c);
+                    }
+                    else
+                    {
+                        cursor.set(l + 1, text.ElementAt(l + 1).Length);
+                    }
                 }
-            }
 
-            if (!keep)
-                cursor.flush();
-            boundsUpdate();
+                if (!keep)
+                    cursor.flush();
+                boundsUpdate();
+            }
         }
 
         public void up(bool keep)
@@ -1088,21 +1109,30 @@ namespace Text_Editor
             int l = cursor.getLine();
             int c = cursor.getColumn();
 
-            if (l > 0)
+            if (Settings.SMART_TYPING && fileType != FileType.TEXT && autocompletes().Count > 0)
             {
-                if (text.ElementAt(l - 1).Length >= c)
-                {
-                    cursor.set(l - 1, c);
-                }
-                else
-                {
-                    cursor.set(l - 1, text.ElementAt(l - 1).Length);
-                }
+                List<String> autos = autocompletes();
+                if (autoIndex > 0)
+                    autoIndex--;
             }
+            else
+            {
+                if (l > 0)
+                {
+                    if (text.ElementAt(l - 1).Length >= c)
+                    {
+                        cursor.set(l - 1, c);
+                    }
+                    else
+                    {
+                        cursor.set(l - 1, text.ElementAt(l - 1).Length);
+                    }
+                }
 
-            if (!keep)
-                cursor.flush();
-            boundsUpdate();
+                if (!keep)
+                    cursor.flush();
+                boundsUpdate();
+            }
         }
 
         public void left(bool keep)
@@ -1142,6 +1172,8 @@ namespace Text_Editor
 
         public void backspace()
         {
+            autoIndex = 0;
+
             if (cursor.isSelecting())
             {
                 collapse();
@@ -1197,6 +1229,8 @@ namespace Text_Editor
 
         public void del()
         {
+            autoIndex = 0;
+
             if (cursor.isSelecting())
             {
                 collapse();
