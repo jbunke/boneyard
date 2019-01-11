@@ -15,6 +15,10 @@ namespace Text_Editor
 
         private Bitmap[] glyphs = new Bitmap[96];
         private Bitmap[] white = new Bitmap[96];
+        private Bitmap[] red255 = new Bitmap[96];
+        private Bitmap[] green200 = new Bitmap[96];
+        private Bitmap[] red200blue200 = new Bitmap[96];
+        private Bitmap[] red200green200 = new Bitmap[96];
 
         private TextFont(Bitmap source)
         {
@@ -23,6 +27,10 @@ namespace Text_Editor
             for (int i = 0; i < 96; i++)
             {
                 white[i] = recolor(glyphs[i], Color.FromArgb(255, 255, 255));
+                red255[i] = recolor(glyphs[i], Color.FromArgb(255, 0, 0));
+                green200[i] = recolor(glyphs[i], Color.FromArgb(0, 200, 0));
+                red200blue200[i] = recolor(glyphs[i], Color.FromArgb(200, 0, 200));
+                red200green200[i] = recolor(glyphs[i], Color.FromArgb(200, 200, 0));
             }
         }
 
@@ -65,7 +73,28 @@ namespace Text_Editor
                     } else if (color == Color.FromArgb(255, 255, 255)) {
                         g.DrawImage(white[address], (int)(48 * resize * i), 0,
                         xy.Width, xy.Height);
-                    }  else
+                    }
+                    else if (color == Color.FromArgb(255, 0, 0))
+                    {
+                        g.DrawImage(red255[address], (int)(48 * resize * i), 0,
+                        xy.Width, xy.Height);
+                    }
+                    else if (color == Color.FromArgb(0, 200, 0))
+                    {
+                        g.DrawImage(green200[address], (int)(48 * resize * i), 0,
+                        xy.Width, xy.Height);
+                    }
+                    else if (color == Color.FromArgb(200, 0, 200))
+                    {
+                        g.DrawImage(red200blue200[address], (int)(48 * resize * i), 0,
+                        xy.Width, xy.Height);
+                    }
+                    else if (color == Color.FromArgb(200, 200, 0))
+                    {
+                        g.DrawImage(red200green200[address], (int)(48 * resize * i), 0,
+                        xy.Width, xy.Height);
+                    }
+                    else
                     {
                         g.DrawImage(recolor(glyphs[address], color), xy.Width * i, 0,
                         xy.Width, xy.Height);

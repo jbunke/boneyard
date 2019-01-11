@@ -131,7 +131,7 @@ namespace Text_Editor
                     kw[1] = new List<string>() { "print", "next", "start", "random" };
                     break;
                 case FileType.CSHARP:
-                    kw = new List<string>[1];
+                    kw = new List<string>[2]; //1
                     kw[0] = new List<string>()
                     { "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked", "class", "const", "continue",
                         "decimal", "default", "delegate", "do", "double", "else", "enum", "event", "explicit", "extern", "false", "finally",
@@ -140,6 +140,9 @@ namespace Text_Editor
                         "public", "readonly", "ref", "return", "sbyte", "sealed", "short", "sizeof", "stackalloc", "static", "string", "struct",
                         "switch", "this", "throw", "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort", "using",
                         "virtual", "void", "volatile", "while", ";", "," };
+                    // this is questionable
+                    kw[1] = new List<string>()
+                    { "List", "String", "Color", "Bitmap", "Graphics", "Dictionary", "Math" };
                     break;
                 case FileType.JAVA:
                     kw = new List<string>[1];

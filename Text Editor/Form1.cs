@@ -265,7 +265,7 @@ namespace Text_Editor
                 windows.ElementAt(activeIndex).getActive().del();
             } else if (e.KeyCode == Keys.Enter)
             {
-                windows.ElementAt(activeIndex).getActive().enter();
+                windows.ElementAt(activeIndex).getActive().enter(false);
             }
             else if (e.KeyCode == Keys.Tab)
             {

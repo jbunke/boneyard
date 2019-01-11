@@ -11,6 +11,11 @@ namespace Text_Editor
 {
     class Context
     {
+        private static readonly Dictionary<String, String> bracketComp = new Dictionary<string, string>() {
+            { "{", "}" }, { "}", "{" },
+            { "[", "]" }, { "]", "[" },
+            { "(", ")" }, { ")", "(" } };
+        
         private List<String> text;
         private TextCursor cursor;
         private String filepath;
@@ -205,6 +210,64 @@ namespace Text_Editor
                         2, (int)(76 * (textSize / 40f)));
                 }
 
+                // Bracket matching
+                int l = cursor.getLine();
+                int c = cursor.getColumn();
+
+                if (fileType != FileType.TEXT)
+                {
+                    Point match = bracketMatching();
+                    int ml = match.Y;
+                    int mc = match.X;
+
+                    if (text.ElementAt(l).Length > c)
+                    {
+                        switch (text.ElementAt(l).ElementAt(c))
+                        {
+                            case '{':
+                            case '[':
+                            case '(':
+                                if (ml != -1)
+                                {
+                                    // cursor
+                                    g.FillRectangle(new SolidBrush(Settings.getColor(Settings.Purpose.SYNTAX1)),
+                                        3 + (int)((c - firstColumn + 6) * (48 * (textSize / 40f))),
+                                        (int)((l - topLine) * (76 * (textSize / 40f))),
+                                        (int)(48 * (textSize / 40f)), (int)(76 * (textSize / 40f)));
+                                    // match
+                                    g.FillRectangle(new SolidBrush(Settings.getColor(Settings.Purpose.SYNTAX1)),
+                                        3 + (int)((mc - firstColumn + 6) * (48 * (textSize / 40f))),
+                                        (int)((ml - topLine) * (76 * (textSize / 40f))),
+                                        (int)(48 * (textSize / 40f)), (int)(76 * (textSize / 40f)));
+                                }
+                                break;
+                        }
+                    }
+                    if (c > 0)
+                    {
+                        switch (text.ElementAt(l).ElementAt(c - 1))
+                        {
+                            case '}':
+                            case ']':
+                            case ')':
+                                if (ml != -1)
+                                {
+                                    // cursor
+                                    g.FillRectangle(new SolidBrush(Settings.getColor(Settings.Purpose.SYNTAX1)),
+                                        3 + (int)(((c - 1) - firstColumn + 6) * (48 * (textSize / 40f))),
+                                        (int)((l - topLine) * (76 * (textSize / 40f))),
+                                        (int)(48 * (textSize / 40f)), (int)(76 * (textSize / 40f)));
+                                    // match
+                                    g.FillRectangle(new SolidBrush(Settings.getColor(Settings.Purpose.SYNTAX1)),
+                                        3 + (int)((mc - firstColumn + 6) * (48 * (textSize / 40f))),
+                                        (int)((ml - topLine) * (76 * (textSize / 40f))),
+                                        (int)(48 * (textSize / 40f)), (int)(76 * (textSize / 40f)));
+                                }
+                                break;
+                        }
+                    }
+                }
+
                 // Text
                 if (fileType != FileType.TEXT)
                 {
@@ -213,6 +276,40 @@ namespace Text_Editor
                 else
                 {
                     g.DrawImage(bitmap, 0, 0);
+                }
+
+                // Autocomplete
+                List<String> autos = autocompletes();
+                if (autos.Count > 0)
+                {
+                    int longest = 1;
+
+                    foreach (String a in autos)
+                    {
+                        longest = Math.Max(longest, a.Length);
+                    }
+
+                    int autoW = (int)(longest * (48 * (textSize / 40f)));
+                    int autoH = (int)(autos.Count * (76 * (textSize / 40f)));
+
+                    Bitmap auto = new Bitmap(autoW, autoH);
+
+                    using (Graphics a = Graphics.FromImage(auto))
+                    {
+                        a.FillRectangle(new SolidBrush(
+                            Settings.getColor(Settings.Purpose.SYNTAX1)),
+                            0, 0, autoW, autoH);
+
+                        for (int i = 0; i < autos.Count; i++)
+                        {
+                            a.DrawImage(TextFont.def.print(autos.ElementAt(i),
+                                textSize, Settings.getColor(Settings.Purpose.BACKGROUND)),
+                                0, (int)(i * (76 * (textSize / 40f))));
+                        }
+                    }
+
+                    g.DrawImage(auto, 3 + (int)(((cursor.getColumn() - firstColumn) + 6) * (48 * (textSize / 40f))),
+                        (int)(((cursor.getLine() + 1) - topLine) * (76 * (textSize / 40f))));
                 }
             }
 
@@ -311,7 +408,7 @@ namespace Text_Editor
                         for (int j = 0; j < tokens.Count; j++)
                         {
                             String token = tokens.ElementAt(j);
-                            Color c = Color.FromArgb(255, 255, 255);
+                            Color c = Settings.getColor(Settings.Purpose.TEXT);
 
                             for (int k = 0; k < keywords.Length; k++)
                             {
@@ -330,7 +427,7 @@ namespace Text_Editor
                             }
 
                             // if no keyword found, could still be string or number
-                            if (c == Color.FromArgb(255, 255, 255))
+                            if (c == Settings.getColor(Settings.Purpose.TEXT))
                             {
                                 if ((token.Length > 1 && token.ElementAt(0) == '"' &&
                                     token.ElementAt(token.Length - 1) == '"') ||
@@ -377,6 +474,202 @@ namespace Text_Editor
                     }
                 }
             }
+        }
+
+        public Point bracketMatching()
+        {
+            Point res = new Point(-1, -1);
+
+            int l = cursor.getLine();
+            int c = cursor.getColumn();
+
+            List<String> tokens = Tokeniser.tokenise(text.ElementAt(l), fileType);
+            String match = "";
+
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                String token = tokens.ElementAt(i);
+                if (token != " ")
+                {
+                    if (Tokeniser.column(tokens, i) == c)
+                    {
+                        // Opening brackets
+                        switch (token)
+                        {
+                            case "(":
+                            case "[":
+                            case "{":
+                                match = token;
+                                break;
+                        }
+                    } else if (Tokeniser.column(tokens, i) == c - 1)
+                    {
+                        // Closing brackets
+                        switch (token)
+                        {
+                            case ")":
+                            case "]":
+                            case "}":
+                                match = token;
+                                break;
+                        }
+                    }
+                }
+            }
+
+            if (match != "")
+            {
+                String complement = "";
+                bracketComp.TryGetValue(match, out complement);
+
+                int sl = l;
+                int sc = c;
+                Stack<String> brackets = new Stack<string>();
+                brackets.Push(match);
+                bool found = false;
+
+                switch (match)
+                {
+                    case "{":
+                    case "[":
+                    case "(":
+                        // Search forwards
+                        while (!found && sl < text.Count)
+                        {
+                            String line = text.ElementAt(sl);
+                            List<String> sTokens = Tokeniser.tokenise(line, fileType);
+
+                            if (sTokens.Contains(complement) || sTokens.Contains(match))
+                            {
+                                for (int i = 0; i < sTokens.Count && !found; i++)
+                                {
+                                    String sToken = sTokens.ElementAt(i);
+                                    if (sl == l)
+                                    {
+                                        if (Tokeniser.column(sTokens, i) > c)
+                                        {
+                                            if (sToken == match)
+                                                brackets.Push(match);
+                                            else if (sToken == complement)
+                                            {
+                                                brackets.Pop();
+                                                sc = Tokeniser.column(sTokens, i);
+                                            }
+                                        }
+                                    } else
+                                    {
+                                        if (sToken == match)
+                                            brackets.Push(match);
+                                        else if (sToken == complement)
+                                        {
+                                            brackets.Pop();
+                                            sc = Tokeniser.column(sTokens, i);
+                                        }
+                                    }
+
+                                    if (brackets.Count == 0)
+                                    {
+                                        found = true;
+                                        res = new Point(sc, sl);
+                                        break;
+                                    }
+                                }
+                            }
+                            sl++;
+                        }
+                        break;
+                    case "}":
+                    case "]":
+                    case ")":
+                        // Search forwards
+                        while (!found && sl >= 0)
+                        {
+                            String line = text.ElementAt(sl);
+                            List<String> sTokens = Tokeniser.tokenise(line, fileType);
+
+                            if (sTokens.Contains(complement) || sTokens.Contains(match))
+                            {
+                                for (int i = sTokens.Count - 1; i >= 0 && !found; i--)
+                                {
+                                    String sToken = sTokens.ElementAt(i);
+                                    if (sl == l)
+                                    {
+                                        if (Tokeniser.column(sTokens, i) < c - 1)
+                                        {
+                                            if (sToken == match)
+                                                brackets.Push(match);
+                                            else if (sToken == complement)
+                                            {
+                                                brackets.Pop();
+                                                sc = Tokeniser.column(sTokens, i);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (sToken == match)
+                                            brackets.Push(match);
+                                        else if (sToken == complement)
+                                        {
+                                            brackets.Pop();
+                                            sc = Tokeniser.column(sTokens, i);
+                                        }
+                                    }
+
+                                    if (brackets.Count == 0)
+                                    {
+                                        found = true;
+                                        res = new Point(sc, sl);
+                                        break;
+                                    }
+                                }
+                            }
+                            sl--;
+                        }
+                        break;
+                }
+            }
+
+            return res;
+        }
+
+        public List<String> autocompletes()
+        {
+            int l = cursor.getLine();
+            int c = cursor.getColumn();
+            List<String> res = new List<string>();
+
+            List<String> possibilities = new List<string>();
+            List<String>[] kw = Settings.keywords(fileType);
+
+            foreach (List<String> kwSet in kw)
+            {
+                possibilities.AddRange(kwSet);
+            }
+
+            List<String> tokens = Tokeniser.tokenise(text.ElementAt(l), fileType);
+            String match = "";
+
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                if (tokens.ElementAt(i) != " " &&
+                    Tokeniser.column(tokens, i) == c - tokens.ElementAt(i).Length)
+                {
+                    match = tokens.ElementAt(i);
+                    break;
+                }
+            }
+
+            if (match != "")
+            {
+                foreach (String possibility in possibilities)
+                {
+                    if (possibility.StartsWith(match) && possibility != match)
+                        res.Add(possibility.Substring(match.Length));
+                }
+            }
+
+            return res;
         }
 
         public void selectAll()
@@ -457,18 +750,30 @@ namespace Text_Editor
 
             int l = cursor.getLine();
             int c = cursor.getColumn();
-            String copy = text.ElementAt(l);
-            text.RemoveAt(l);
-            text.Insert(l, copy.Substring(0, c) + tab + copy.Substring(c));
+            List<String> autos = autocompletes();
 
-            cursor.increment(tab.Length);
+            if (Settings.SMART_TYPING &&
+                fileType != FileType.TEXT && autos.Count != 0)
+            {
+                // smartTyping("tab");
+                type(autos.ElementAt(0));
+            } else
+            {
+                String realTab = tab;
+                String copy = text.ElementAt(l);
+
+                while ((c + realTab.Length) % tab.Length != 0)
+                    realTab = realTab.Substring(1);
+
+                text.RemoveAt(l);
+                text.Insert(l, copy.Substring(0, c) + realTab + copy.Substring(c));
+
+                cursor.increment(realTab.Length);
+            }
+
             uFlag = true;
 
             cursor.flush();
-
-            if (Settings.SMART_TYPING && fileType != FileType.TEXT)
-                smartTyping("tab");
-
             boundsUpdate();
         }
 
@@ -493,8 +798,11 @@ namespace Text_Editor
                     text.Insert(l, copy.Substring(0, c) + "]" + copy.Substring(c));
                     break;
                 case "<":
-                    text.RemoveAt(l);
-                    text.Insert(l, copy.Substring(0, c) + ">" + copy.Substring(c));
+                    if (fileType == FileType.HTML)
+                    {
+                        text.RemoveAt(l);
+                        text.Insert(l, copy.Substring(0, c) + ">" + copy.Substring(c));
+                    }
                     break;
                 case "\"":
                     text.RemoveAt(l);
@@ -526,7 +834,7 @@ namespace Text_Editor
                     }
                     break;
                 case ">":
-                    if (copy.Length > c && copy.ElementAt(c) == '>')
+                    if (copy.Length > c && copy.ElementAt(c) == '>' && fileType == FileType.HTML)
                     {
                         text.RemoveAt(l);
                         text.Insert(l, copy.Substring(0, c) + copy.Substring(c + 1));
@@ -630,12 +938,42 @@ namespace Text_Editor
             // works both as else case and as last line once no more \n new line exists
             pasting.Add(toPaste);
 
+            // establish leading spaces
+            String spaces = "";
+            int l = cursor.getLine();
+
+            for (int i = 0; i < text.ElementAt(l).Length; i++)
+            {
+                if (text.ElementAt(l).ElementAt(i) != ' ')
+                    break;
+
+                spaces += ' ';
+            }
+
             for (int i = 0; i < pasting.Count; i++)
             {
                 if (i > 0)
-                    enter();
+                {
+                    enter(true);
+                    if (fileType != FileType.TEXT)
+                    {
+                        String pasteLine = pasting.ElementAt(i);
 
-                type(pasting.ElementAt(i));
+                        for (int j = 0; j < spaces.Length; j++)
+                        {
+                            if (pasting.ElementAt(i).ElementAt(j) != ' ')
+                                break;
+
+                            pasteLine = pasteLine.Substring(1);
+                        }
+                        type(spaces + pasteLine);
+                    }
+                    else
+                        type(pasting.ElementAt(i));
+                } else
+                {
+                    type(pasting.ElementAt(i));
+                }
             }
 
             cursor.flush();
@@ -702,7 +1040,7 @@ namespace Text_Editor
             }
         }
 
-        public void enter()
+        public void enter(bool fromZeroC)
         {
             collapse();
 
@@ -715,7 +1053,7 @@ namespace Text_Editor
             text.Insert(l + 1, rightOf);
             cursor.set(l + 1, 0);
 
-            if (Settings.SMART_TYPING && fileType != FileType.TEXT)
+            if (Settings.SMART_TYPING && fileType != FileType.TEXT && !fromZeroC)
                 smartTyping("enter");
 
             uFlag = true;

@@ -72,7 +72,8 @@ namespace Text_Editor
             } else
             {
                 int tabWidth = Math.Min(Math.Max(80, size.Width / 8), 200);
-                activeIndex = (int)Math.Floor((x - 3) / (float)(tabWidth + 4));
+                activeIndex = Math.Min((int)Math.Floor((x - 3) / (float)(tabWidth + 4)),
+                    contexts.Count - 1);
             }
         }
 
