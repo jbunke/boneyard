@@ -148,7 +148,7 @@ namespace Text_Editor
                         "assert", "default", "package", "synchronized",
                         "boolean", "do", "if", "private", "this", "break", "double", "implements", "protected", "throw",
                         "byte", "else", "import", "public", "throws", "case", "enum", "instanceof", "return", "transient",
-                        "catch", "extends", "int", "short", "try", "char", "final", "interface", "static", "void",
+                        "catch", "extends", "int", "short", "try", "char", "final", "interface", "static", "void", "null", 
                         "class", "finally", "long", "strictfp", "volatile", "float", "native", "super", "while", ";", "," };
                     break;
             }

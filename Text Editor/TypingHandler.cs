@@ -130,6 +130,7 @@ namespace Text_Editor
                         typed = "}";
                     break;
                 case Keys.OemBackslash:
+                case Keys.OemPipe:
                     typed = "\\";
                     if (e.Shift)
                         typed = "|";
