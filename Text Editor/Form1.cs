@@ -90,7 +90,7 @@ namespace Text_Editor
         {
             mousePoint = new Point(e.X, e.Y);
 
-            if (e.Y > Window.TAB_HEIGHT)
+            if (e.Y > Window.TAB_HEIGHT && e.X + 10 < windows.ElementAt(activeIndex).getSize().Width)
             {
                 Cursor = Cursors.IBeam;
             } else

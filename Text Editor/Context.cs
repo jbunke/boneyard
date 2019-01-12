@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -315,10 +315,24 @@ namespace Text_Editor
                                 0, (int)(i * (76 * (textSize / 40f))));
                         }
                     }
-
+                    
                     g.DrawImage(auto, 3 + (int)(((cursor.getColumn() - firstColumn) + 6) * (48 * (textSize / 40f))),
                         (int)(((cursor.getLine() + 1) - topLine) * (76 * (textSize / 40f))));
                 }
+
+                // Scroll bar
+                int totalLines = text.Count;
+                int barHeight = (int)((printableL / (float)totalLines) *
+                    (window.getSize().Height - Window.TAB_HEIGHT));
+                int barStart = (int)((topLine / (float)totalLines) *
+                    (window.getSize().Height - Window.TAB_HEIGHT));
+
+                // Bar background
+                g.FillRectangle(new SolidBrush(Settings.getColor(Settings.Purpose.SYNTAX1)),
+                    bitmap.Width - 10, 0, 10, bitmap.Height);
+                // Bar
+                g.FillRectangle(new SolidBrush(Settings.getColor(Settings.Purpose.TEXT)),
+                    bitmap.Width - 10, barStart, 10, barHeight);
             }
 
             return toRender;
@@ -346,16 +360,9 @@ namespace Text_Editor
 
         public void redraw()
         {
-            int maxWidth = 0;
-            foreach (String line in text)
-            {
-                maxWidth = Math.Max(maxWidth, line.Length + 8);
-            }
-
-            maxWidth *= (int)(48 * (textSize / 40f));
             int height = (int)(printableL * (76 * (textSize / 40f)));
 
-            bitmap = new Bitmap(maxWidth, height);
+            bitmap = new Bitmap(window.getSize().Width, height);
 
             using (Graphics g = Graphics.FromImage(bitmap))
             {
@@ -1365,25 +1372,38 @@ namespace Text_Editor
             l = Math.Max(0, Math.Min(l, text.Count - 1));
             c = Math.Min(c, text.ElementAt(l).Length);
 
-            if (c < 0 && text.Count > l + 1)
+            if (x + 10 >= window.getSize().Width)
             {
-                cursor.setFrom(l, 0);
-                cursor.set(l + 1, 0);
+                // Scroll bar case
+                int totalLines = text.Count;
+                
+                topLine = (int)(totalLines * (y / (float)(window.getSize().Height - Window.TAB_HEIGHT)));
+                topLine = Math.Max(0, Math.Min(topLine, text.Count - 1));
+
+                uFlag = true;
             } else
             {
-                cursor.set(l, c);
-
-                if (down)
-                    cursor.setFrom(l, c);
-
-                if (!down && sinceLastClick < Settings.DOUBLE_CLICK)
+                if (c < 0 && text.Count > l + 1)
                 {
-                    // Highlight "word"
-                    highlightToken();
+                    cursor.setFrom(l, 0);
+                    cursor.set(l + 1, 0);
                 }
-            }
+                else
+                {
+                    cursor.set(l, c);
 
-            boundsUpdate();
+                    if (down)
+                        cursor.setFrom(l, c);
+
+                    if (!down && sinceLastClick < Settings.DOUBLE_CLICK)
+                    {
+                        // Highlight "word"
+                        highlightToken();
+                    }
+                }
+
+                boundsUpdate();
+            }
         }
     }
 }
