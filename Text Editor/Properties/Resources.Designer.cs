@@ -83,6 +83,16 @@ namespace Text_Editor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
+        internal static System.Drawing.Icon boneyard_april_fools {
+            get {
+                object obj = ResourceManager.GetObject("boneyard_april_fools", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
         internal static System.Drawing.Icon boneyard_cr {
             get {
                 object obj = ResourceManager.GetObject("boneyard_cr", resourceCulture);

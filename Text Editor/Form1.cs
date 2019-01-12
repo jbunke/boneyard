@@ -30,6 +30,14 @@ namespace Text_Editor
 
             // Added
             this.MouseWheel += new MouseEventHandler(Form1_MouseWheel);
+
+            if (DateTime.Today.DayOfYear == new DateTime(DateTime.Today.Year, 4, 1).DayOfYear)
+            {
+                Icon = Resources.boneyard_april_fools;
+            } else
+            {
+                Icon = Resources.boneyard;
+            }
         }
 
         private void pictureBox1_MouseLeave(object sender, EventArgs e)

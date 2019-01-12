@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="boneyard.ico" />
+    <None Include="Resources\boneyard-april-fools.ico" />
     <None Include="Resources\boneyard-cr.ico" />
     <None Include="Resources\boneyard-cursor.ico" />
   </ItemGroup>
