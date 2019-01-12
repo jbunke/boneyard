@@ -641,6 +641,31 @@ namespace Text_Editor
             return res;
         }
 
+        public void highlightToken()
+        {
+            int l = cursor.getLine();
+            int c = cursor.getColumn();
+            List<String> tokens = Tokeniser.tokenise(text.ElementAt(l), fileType);
+            int from = -1;
+            int to = -1;
+
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                String token = tokens.ElementAt(i);
+                int index = Tokeniser.column(tokens, i);
+
+                if (token.Length > 0 &&
+                    index <= c && index + token.Length >= c)
+                {
+                    from = index;
+                    to = index + token.Length;
+                    cursor.set(l, to);
+                    cursor.setFrom(l, from);
+                    break;
+                }
+            }
+        }
+
         public List<String> autocompletes()
         {
             int l = cursor.getLine();
@@ -897,29 +922,48 @@ namespace Text_Editor
                     String leadingSpaces = "";
                     String nextSpaces = "";
 
-                    for (int i = 0; i < text.ElementAt(l - 1).Length; i++)
+                    if (l > 0 && text.ElementAt(l - 1).Length > 0 && text.ElementAt(l).Length > 0 &&
+                        text.ElementAt(l - 1).ElementAt(text.ElementAt(l - 1).Length - 1) == '{' &&
+                        text.ElementAt(l).ElementAt(0) == '}')
                     {
-                        if (text.ElementAt(l - 1).ElementAt(i) != ' ')
-                            break;
-                        leadingSpaces += " ";
-                    }
-
-                    if (text.Count > l + 1)
-                    {
-                        for (int i = 0; i < text.ElementAt(l + 1).Length; i++)
+                        // Auto-indentation
+                        for (int i = 0; i < text.ElementAt(l - 1).Length; i++)
                         {
-                            if (text.ElementAt(l + 1).ElementAt(i) != ' ')
+                            if (text.ElementAt(l - 1).ElementAt(i) != ' ')
                                 break;
-                            nextSpaces += " ";
+                            leadingSpaces += " ";
                         }
+
+                        text.Insert(l, leadingSpaces + Settings.TAB);
+                        cursor.set(l, (leadingSpaces + Settings.TAB).Length);
+                        text.RemoveAt(l + 1);
+                        text.Insert(l + 1, leadingSpaces + copy);
+                    } else
+                    {
+                        for (int i = 0; i < text.ElementAt(l - 1).Length; i++)
+                        {
+                            if (text.ElementAt(l - 1).ElementAt(i) != ' ')
+                                break;
+                            leadingSpaces += " ";
+                        }
+
+                        if (text.Count > l + 1)
+                        {
+                            for (int i = 0; i < text.ElementAt(l + 1).Length; i++)
+                            {
+                                if (text.ElementAt(l + 1).ElementAt(i) != ' ')
+                                    break;
+                                nextSpaces += " ";
+                            }
+                        }
+
+                        if (nextSpaces.Length > leadingSpaces.Length)
+                            leadingSpaces = nextSpaces;
+
+                        text.RemoveAt(l);
+                        text.Insert(l, leadingSpaces + copy);
+                        cursor.set(l, leadingSpaces.Length);
                     }
-
-                    if (nextSpaces.Length > leadingSpaces.Length)
-                        leadingSpaces = nextSpaces;
-
-                    text.RemoveAt(l);
-                    text.Insert(l, leadingSpaces + copy);
-                    cursor.set(l, leadingSpaces.Length);
                     break;
             }
         }
@@ -1313,7 +1357,7 @@ namespace Text_Editor
             }
         }
 
-        public void mouseHandler(bool down, int x, int y)
+        public void mouseHandler(bool down, int x, int y, int sinceLastClick)
         {
             int l = (int)Math.Floor(y / (76 * (textSize / 40f))) + topLine;
             int c = (int)Math.Round((x - 3) / (48 * (textSize / 40f))) - (6 - firstColumn);
@@ -1331,6 +1375,12 @@ namespace Text_Editor
 
                 if (down)
                     cursor.setFrom(l, c);
+
+                if (!down && sinceLastClick < Settings.DOUBLE_CLICK)
+                {
+                    // Highlight "word"
+                    highlightToken();
+                }
             }
 
             boundsUpdate();

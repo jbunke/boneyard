@@ -13,6 +13,7 @@ namespace Text_Editor
         public static readonly int TEXT_SIZE = 10;
         public static readonly bool SMART_TYPING = true;
         public static readonly String TAB = "  ";
+        public static readonly int DOUBLE_CLICK = 5;
 
         public enum Theme
         {

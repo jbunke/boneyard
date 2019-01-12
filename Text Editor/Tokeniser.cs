@@ -44,7 +44,7 @@ namespace Text_Editor
                     }
                 } else
                 {
-                    if (elem == '"' || elem == '\'')
+                    if (fileType != FileType.TEXT && (elem == '"' || elem == '\''))
                     {
                         lastQuote = i;
                         quoteType = elem;

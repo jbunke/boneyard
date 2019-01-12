@@ -16,9 +16,11 @@ namespace Text_Editor
     {
         List<Window> windows = new List<Window>() { Window.single() };
         int activeIndex = 0;
+
         bool down = false;
         bool selectScrolling = false;
         Point mousePoint = new Point(0, 0);
+        int sinceLastClick = 0;
 
         Bitmap canvas;
 
@@ -53,7 +55,7 @@ namespace Text_Editor
                 if (e.X >= window.getPoint().X && e.X < window.getPoint().X + window.getSize().Width &&
                     e.Y >= window.getPoint().Y && e.Y < window.getPoint().Y + window.getSize().Height)
                 {
-                    window.mouseHandler(true, e.X - window.getPoint().X, e.Y - window.getPoint().Y);
+                    window.mouseHandler(true, e.X - window.getPoint().X, e.Y - window.getPoint().Y, sinceLastClick);
                     break;
                 }
             }
@@ -68,10 +70,12 @@ namespace Text_Editor
                 if (e.X >= window.getPoint().X && e.X < window.getPoint().X + window.getSize().Width &&
                     e.Y >= window.getPoint().Y && e.Y < window.getPoint().Y + window.getSize().Height)
                 {
-                    window.mouseHandler(false, e.X - window.getPoint().X, e.Y - window.getPoint().Y);
+                    window.mouseHandler(false, e.X - window.getPoint().X, e.Y - window.getPoint().Y, sinceLastClick);
                     break;
                 }
             }
+
+            sinceLastClick = 0;
         }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
@@ -93,7 +97,7 @@ namespace Text_Editor
                     if (e.X >= window.getPoint().X && e.X < window.getPoint().X + window.getSize().Width &&
                         e.Y >= window.getPoint().Y && e.Y < window.getPoint().Y + window.getSize().Height)
                     {
-                        window.mouseHandler(false, e.X - window.getPoint().X, e.Y - window.getPoint().Y);
+                        window.mouseHandler(false, e.X - window.getPoint().X, e.Y - window.getPoint().Y, Settings.DOUBLE_CLICK);
                         break;
                     }
                 }
@@ -304,10 +308,13 @@ namespace Text_Editor
 
         private void update()
         {
+            if (sinceLastClick < Settings.DOUBLE_CLICK)
+                sinceLastClick++;
+
             if (selectScrolling) {
                 windows.ElementAt(activeIndex).getActive().scroll(
                     Math.Sign((windows.ElementAt(activeIndex).getSize().Width / 2) - mousePoint.Y) * 4);
-                windows.ElementAt(activeIndex).getActive().mouseHandler(false, mousePoint.X, mousePoint.Y);
+                windows.ElementAt(activeIndex).getActive().mouseHandler(false, mousePoint.X, mousePoint.Y, Settings.DOUBLE_CLICK);
             }
 
             foreach (Window window in windows)

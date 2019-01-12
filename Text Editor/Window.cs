@@ -64,11 +64,11 @@ namespace Text_Editor
                 activeIndex %= contexts.Count;
         }
 
-        public void mouseHandler(bool down, int x, int y)
+        public void mouseHandler(bool down, int x, int y, int sinceLastClick)
         {
             if (y > TAB_HEIGHT)
             {
-                contexts.ElementAt(activeIndex).mouseHandler(down, x, y - TAB_HEIGHT);
+                contexts.ElementAt(activeIndex).mouseHandler(down, x, y - TAB_HEIGHT, sinceLastClick);
             } else
             {
                 int tabWidth = Math.Min(Math.Max(80, size.Width / 8), 200);
