@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -76,6 +76,10 @@ namespace Text_Editor
             filepath.LastIndexOf(".pl") == filepath.Length - ".pl".Length)
             {
                 fileType = FileType.PROLOG;
+            } else if (filepath.Contains(".vb") &&
+            filepath.LastIndexOf(".vb") == filepath.Length - ".vb".Length)
+            {
+                fileType = FileType.VB;
             }
 
             uFlag = true;
@@ -315,15 +319,15 @@ namespace Text_Editor
                                 0, (int)(i * (76 * (textSize / 40f))));
                         }
                     }
-                    
+
                     g.DrawImage(auto, 3 + (int)(((cursor.getColumn() - firstColumn) + 6) * (48 * (textSize / 40f))),
                         (int)(((cursor.getLine() + 1) - topLine) * (76 * (textSize / 40f))));
                 }
 
                 // Scroll bar
                 int totalLines = text.Count;
-                int barHeight = (int)((printableL / (float)totalLines) *
-                    (window.getSize().Height - Window.TAB_HEIGHT));
+                int barHeight = Math.Max(5, (int)((printableL / (float)totalLines) *
+                    (window.getSize().Height - Window.TAB_HEIGHT)));
                 int barStart = (int)((topLine / (float)totalLines) *
                     (window.getSize().Height - Window.TAB_HEIGHT));
 
@@ -461,6 +465,12 @@ namespace Text_Editor
                                     {
                                         case FileType.PROLOG:
                                             if (token.Length >= 1 && token.IndexOf("%") == 0)
+                                            {
+                                                c = Settings.getColor(Settings.Purpose.COMMENT);
+                                            }
+                                            break;
+                                        case FileType.VB:
+                                            if (token.Length >= 1 && token.IndexOf("'") == 0)
                                             {
                                                 c = Settings.getColor(Settings.Purpose.COMMENT);
                                             }

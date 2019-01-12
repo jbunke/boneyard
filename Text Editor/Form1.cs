@@ -67,6 +67,8 @@ namespace Text_Editor
                     break;
                 }
             }
+
+            Text = "Boneyard [" + windows.ElementAt(activeIndex).getActive().getFilepath() + "]";
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -248,9 +250,14 @@ namespace Text_Editor
                                 windows.ElementAt(activeIndex).getActive().setFileType(FileType.CSHARP);
                             } else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".pl") &&
                             windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".pl") ==
-                            windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".-l".Length)
+                            windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".pl".Length)
                             {
                                 windows.ElementAt(activeIndex).getActive().setFileType(FileType.PROLOG);
+                            } else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".vb") &&
+                            windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".vb") ==
+                            windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".vb".Length)
+                            {
+                                windows.ElementAt(activeIndex).getActive().setFileType(FileType.VB);
                             }
                         }
 
@@ -302,6 +309,8 @@ namespace Text_Editor
                 update();
                 render();
             }
+
+            Text = "Boneyard [" + windows.ElementAt(activeIndex).getActive().getFilepath() + "]";
         }
         
         private void timer1_Tick(object sender, EventArgs e)

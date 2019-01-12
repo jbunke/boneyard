@@ -44,7 +44,7 @@ namespace Text_Editor
                     }
                 } else
                 {
-                    if (fileType != FileType.TEXT && (elem == '"' || elem == '\''))
+                    if (fileType != FileType.TEXT && (elem == '"' || (fileType != FileType.VB && elem == '\'')))
                     {
                         lastQuote = i;
                         quoteType = elem;
@@ -68,7 +68,15 @@ namespace Text_Editor
                             res.Add(token);
                             token = "";
                             break;
-                        } else
+                        } else if (fileType == FileType.VB && elem == '\'')
+                        {
+                            // is a VB comment
+                            token += input.Substring(i);
+                            res.Add(token);
+                            token = "";
+                            break;
+                        }
+                        else
                         {
                             if (token != "")
                                 res.Add(token);
