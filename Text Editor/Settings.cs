@@ -64,15 +64,15 @@ namespace Text_Editor
                         case Purpose.SELECTED_TAB:
                             return Color.FromArgb(180, 180, 180);
                         case Purpose.SYNTAX1:
-                            return Color.FromArgb(100, 100, 0);
+                            return Color.FromArgb(255, 0, 0);
                         case Purpose.SYNTAX2:
-                            return Color.FromArgb(0, 150, 0);
+                            return Color.FromArgb(0, 200, 0);
                         case Purpose.STRING:
-                            return Color.FromArgb(100, 0, 100);
+                            return Color.FromArgb(200, 0, 200);
                         case Purpose.NUM:
-                            return Color.FromArgb(0, 100, 0);
+                            return Color.FromArgb(0, 200, 0);
                         case Purpose.COMMENT:
-                            return Color.FromArgb(0, 0, 100);
+                            return Color.FromArgb(200, 200, 0);
                     }
                     break;
                 case Theme.NIGHTMARE:
