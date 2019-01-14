@@ -348,7 +348,7 @@ namespace Text_Editor
 
             int height = window.getSize().Height - Window.TAB_HEIGHT;
             int lastPrintableL = printableL;
-            printableL = (int)Math.Floor(height / (76 * (textSize / 40f)));
+            printableL = Math.Max(1, (int)Math.Floor(height / (76 * (textSize / 40f))));
             int lastPrintableC = printableC;
             printableC = (int)Math.Floor(window.getSize().Width / (48 * (textSize / 40f))) - 6;
 
