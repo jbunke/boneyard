@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Context.cs" />
     <Compile Include="FileType.cs" />
+    <Compile Include="State.cs" />
     <Compile Include="TextCursor.cs" />
     <Compile Include="TextFont.cs" />
     <Compile Include="Form1.cs">

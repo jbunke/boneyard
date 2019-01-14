@@ -22,6 +22,10 @@ namespace Text_Editor
         private Window window;
         private FileType fileType;
 
+        // Version control
+        private Stack<State> undoStack;
+        private Stack<State> redoStack;
+
         // visual
         private bool uFlag = false;
         private String tab;
@@ -42,6 +46,9 @@ namespace Text_Editor
             this.window = window;
             fileType = FileType.TEXT;
 
+            undoStack = new Stack<State>();
+            redoStack = new Stack<State>();
+
             uFlag = true;
             tab = Settings.TAB;
             textSize = Settings.TEXT_SIZE;
@@ -49,6 +56,7 @@ namespace Text_Editor
             firstColumn = 0;
             autoIndex = 0;
 
+            modifying();
             update();
         }
 
@@ -82,6 +90,9 @@ namespace Text_Editor
                 fileType = FileType.VB;
             }
 
+            undoStack = new Stack<State>();
+            redoStack = new Stack<State>();
+
             uFlag = true;
             tab = Settings.TAB;
             textSize = Settings.TEXT_SIZE;
@@ -89,6 +100,7 @@ namespace Text_Editor
             firstColumn = 0;
             autoIndex = 0;
 
+            modifying();
             update();
         }
 
@@ -142,7 +154,7 @@ namespace Text_Editor
                 int linesPrinted = text.Count - topLine;
 
                 // Line number separator
-                g.FillRectangle(new SolidBrush(Settings.getColor(Settings.Purpose.CURSOR)),
+                g.FillRectangle(new SolidBrush(Color.FromArgb(100, Settings.getColor(Settings.Purpose.CURSOR))),
                     7 + (5 * (48 * (textSize / 40f))), 0, 3,
                     Math.Min(printableL, linesPrinted) * (76 * (textSize / 40f)));
 
@@ -773,8 +785,10 @@ namespace Text_Editor
             }
         }
 
-        public void type(String toType)
+        public void type(String toType, bool modify)
         {
+            if (modify)
+                modifying();
             collapse();
             autoIndex = 0;
 
@@ -797,6 +811,7 @@ namespace Text_Editor
 
         public void tabStroke()
         {
+            modifying();
             collapse();
 
             int l = cursor.getLine();
@@ -807,7 +822,7 @@ namespace Text_Editor
                 fileType != FileType.TEXT && autos.Count != 0)
             {
                 // smartTyping("tab");
-                type(autos.ElementAt(autoIndex));
+                type(autos.ElementAt(autoIndex), true);
             } else
             {
                 autoIndex = 0;
@@ -987,6 +1002,7 @@ namespace Text_Editor
 
         public void paste(String toPaste)
         {
+            modifying();
             collapse();
             autoIndex = 0;
 
@@ -1039,13 +1055,13 @@ namespace Text_Editor
 
                             pasteLine = pasteLine.Substring(1);
                         }
-                        type(spaces + pasteLine);
+                        type(spaces + pasteLine, false);
                     }
                     else
-                        type(pasting.ElementAt(i));
+                        type(pasting.ElementAt(i), false);
                 } else
                 {
-                    type(pasting.ElementAt(i));
+                    type(pasting.ElementAt(i), false);
                 }
             }
 
@@ -1113,8 +1129,50 @@ namespace Text_Editor
             }
         }
 
+        private void modifying()
+        {
+            redoStack = new Stack<State>();
+            undoStack.Push(new State(text, new TextCursor(cursor.getLine(), cursor.getColumn(), 
+                cursor.getFromL(), cursor.getFromC())));
+        }
+
+        public void undo()
+        {
+            if (undoStack.Count > 0)
+            {
+                redoStack.Push(new State(text, new TextCursor(cursor.getLine(), cursor.getColumn(),
+                    cursor.getFromL(), cursor.getFromC())));
+
+                State undone = undoStack.Pop();
+                text = undone.getText();
+                cursor.set(undone.getCursor().getLine(), undone.getCursor().getColumn());
+                cursor.setFrom(undone.getCursor().getFromL(), undone.getCursor().getFromC());
+            }
+
+            uFlag = true;
+            boundsUpdate();
+        }
+
+        public void redo()
+        {
+            if (redoStack.Count > 0)
+            {
+                undoStack.Push(new State(text, new TextCursor(cursor.getLine(), cursor.getColumn(),
+                    cursor.getFromL(), cursor.getFromC())));
+
+                State redone = redoStack.Pop();
+                text = redone.getText();
+                cursor.set(redone.getCursor().getLine(), redone.getCursor().getColumn());
+                cursor.setFrom(redone.getCursor().getFromL(), redone.getCursor().getFromC());
+            }
+
+            uFlag = true;
+            boundsUpdate();
+        }
+
         public void enter(bool fromZeroC)
         {
+            modifying();
             collapse();
             autoIndex = 0;
 
@@ -1233,6 +1291,7 @@ namespace Text_Editor
 
         public void backspace()
         {
+            modifying();
             autoIndex = 0;
 
             if (cursor.isSelecting())
@@ -1290,6 +1349,7 @@ namespace Text_Editor
 
         public void del()
         {
+            modifying();
             autoIndex = 0;
 
             if (cursor.isSelecting())

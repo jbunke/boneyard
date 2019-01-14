@@ -29,6 +29,18 @@ namespace Text_Editor
         {
             this.line = line;
             this.column = column;
+            fromL = 0;
+            fromC = 0;
+            count = 0;
+            visible = false;
+        }
+
+        public TextCursor(int line, int column, int fromL, int fromC)
+        {
+            this.line = line;
+            this.column = column;
+            this.fromL = fromL;
+            this.fromC = fromC;
             count = 0;
             visible = false;
         }

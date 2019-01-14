@@ -189,6 +189,14 @@ namespace Text_Editor
                             Context.open(windows.ElementAt(activeIndex),
                             text, filepath));
                         break;
+                    case Keys.Z:
+                        // UNDO
+                        windows.ElementAt(activeIndex).getActive().undo();
+                        break;
+                    case Keys.Y:
+                        // REDO
+                        windows.ElementAt(activeIndex).getActive().redo();
+                        break;
                     case Keys.V:
                         // PASTE
                         if (Clipboard.ContainsText())
@@ -304,7 +312,13 @@ namespace Text_Editor
             } else
             {
                 String toType = TypingHandler.typed(e);
-                windows.ElementAt(activeIndex).getActive().type(toType);
+                if (toType == " ")
+                {
+                    windows.ElementAt(activeIndex).getActive().type(toType, true);
+                } else
+                {
+                    windows.ElementAt(activeIndex).getActive().type(toType, false);
+                }
 
                 update();
                 render();
