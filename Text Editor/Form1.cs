@@ -182,12 +182,6 @@ namespace Text_Editor
                     case Keys.O:
                         // Open
                         openFileDialog1.ShowDialog();
-                        filepath = openFileDialog1.FileName;
-
-                        text = File.ReadAllLines(filepath).ToList();
-                        windows.ElementAt(activeIndex).addContext(
-                            Context.open(windows.ElementAt(activeIndex),
-                            text, filepath));
                         break;
                     case Keys.Z:
                         // UNDO
@@ -226,47 +220,6 @@ namespace Text_Editor
                         {
                             saveFileDialog1.ShowDialog();
                             filepath = saveFileDialog1.FileName;
-                            
-                            switch (fileType)
-                            {
-                                case FileType.TEXT:
-                                    if (!filepath.Contains("."))
-                                        filepath += ".txt";
-                                    break;
-                                case FileType.BAREBONES:
-                                    if (!filepath.Contains("."))
-                                        filepath += ".bb";
-                                    break;
-                            }
-
-                            windows.ElementAt(activeIndex).getActive().setFilepath(filepath);
-
-                            if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".bb") &&
-                                windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".bb") ==
-                                windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".bb".Length)
-                            {
-                                windows.ElementAt(activeIndex).getActive().setFileType(FileType.BAREBONES);
-                            } else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".java") &&
-                                windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".java") ==
-                                windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".java".Length)
-                            {
-                                windows.ElementAt(activeIndex).getActive().setFileType(FileType.JAVA);
-                            } else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".cs") &&
-                              windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".cs") ==
-                              windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".cs".Length)
-                            {
-                                windows.ElementAt(activeIndex).getActive().setFileType(FileType.CSHARP);
-                            } else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".pl") &&
-                            windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".pl") ==
-                            windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".pl".Length)
-                            {
-                                windows.ElementAt(activeIndex).getActive().setFileType(FileType.PROLOG);
-                            } else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".vb") &&
-                            windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".vb") ==
-                            windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".vb".Length)
-                            {
-                                windows.ElementAt(activeIndex).getActive().setFileType(FileType.VB);
-                            }
                         }
 
                         windows.ElementAt(activeIndex).getActive().redraw();
@@ -368,6 +321,66 @@ namespace Text_Editor
             }
 
             pictureBox1.Image = canvas;
+        }
+
+        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
+        {
+            String filepath = openFileDialog1.FileName;
+            List<String> text = File.ReadAllLines(filepath).ToList();
+            windows.ElementAt(activeIndex).addContext(
+                Context.open(windows.ElementAt(activeIndex),
+                text, filepath));
+        }
+
+        private void saveFileDialog1_FileOk(object sender, CancelEventArgs e)
+        {
+            String filepath = saveFileDialog1.FileName;
+            FileType fileType = windows.ElementAt(activeIndex).getActive().getFileType();
+
+            switch (fileType)
+            {
+                case FileType.TEXT:
+                    if (!filepath.Contains("."))
+                        filepath += ".txt";
+                    break;
+                case FileType.BAREBONES:
+                    if (!filepath.Contains("."))
+                        filepath += ".bb";
+                    break;
+            }
+
+            windows.ElementAt(activeIndex).getActive().setFilepath(filepath);
+
+            if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".bb") &&
+                windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".bb") ==
+                windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".bb".Length)
+            {
+                windows.ElementAt(activeIndex).getActive().setFileType(FileType.BAREBONES);
+            }
+            else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".java") &&
+              windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".java") ==
+              windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".java".Length)
+            {
+                windows.ElementAt(activeIndex).getActive().setFileType(FileType.JAVA);
+            }
+            else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".cs") &&
+                windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".cs") ==
+                windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".cs".Length)
+            {
+                windows.ElementAt(activeIndex).getActive().setFileType(FileType.CSHARP);
+            }
+            else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".pl") &&
+                windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".pl") ==
+                windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".pl".Length)
+            {
+                windows.ElementAt(activeIndex).getActive().setFileType(FileType.PROLOG);
+            }
+            else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".vb") &&
+                windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".vb") ==
+                windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".vb".Length)
+            {
+                windows.ElementAt(activeIndex).getActive().setFileType(FileType.VB);
+            }
         }
     }
 }
