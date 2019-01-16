@@ -131,6 +131,12 @@ namespace Text_Editor
                       "bool", "true", "false", "function", "field", "var", "return", "void", "include" };
                     kw[1] = new List<string>() { "print", "next", "start", "random" };
                     break;
+                case FileType.BONES:
+                    kw = new List<string>[1];
+                    kw[0] = new List<string>()
+                    { "if", "else", "while", "float", "int", "for", "class", "string", ";",
+                      "bool", "true", "false", "return", "void", "import" };
+                    break;
                 case FileType.CSHARP:
                     kw = new List<string>[2]; //1
                     kw[0] = new List<string>()

@@ -72,7 +72,13 @@ namespace Text_Editor
                 filepath.LastIndexOf(".bb") == filepath.Length - ".bb".Length)
             {
                 fileType = FileType.BAREBONES;
-            } else if (filepath.Contains(".java") &&
+            }
+            else if (filepath.Contains(".bo") &&
+              filepath.LastIndexOf(".bo") == filepath.Length - ".bo".Length)
+            {
+                fileType = FileType.BONES;
+            }
+            else if (filepath.Contains(".java") &&
                 filepath.LastIndexOf(".java") == filepath.Length - ".java".Length)
             {
                 fileType = FileType.JAVA;

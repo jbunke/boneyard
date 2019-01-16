@@ -68,7 +68,7 @@ namespace Text_Editor
                 }
             }
 
-            Text = "Boneyard [" + windows.ElementAt(activeIndex).getActive().getFilepath() + "]";
+            Text = "Boneyard [" + windows.ElementAt(activeIndex).getActive().getFilepath().Replace("!!!", "Untitled") + "]";
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -277,7 +277,7 @@ namespace Text_Editor
                 render();
             }
 
-            Text = "Boneyard [" + windows.ElementAt(activeIndex).getActive().getFilepath() + "]";
+            Text = "Boneyard [" + windows.ElementAt(activeIndex).getActive().getFilepath().Replace("!!!", "Untitled") + "]";
         }
         
         private void timer1_Tick(object sender, EventArgs e)
@@ -287,7 +287,7 @@ namespace Text_Editor
                 update();
                 render();
             }
-            GC.Collect();
+            // GC.Collect();
         }
 
         private void update()
@@ -356,6 +356,12 @@ namespace Text_Editor
                 windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".bb".Length)
             {
                 windows.ElementAt(activeIndex).getActive().setFileType(FileType.BAREBONES);
+            }
+            else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".bo") &&
+                windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".bo") ==
+                windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".bo".Length)
+            {
+                windows.ElementAt(activeIndex).getActive().setFileType(FileType.BONES);
             }
             else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".java") &&
               windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".java") ==

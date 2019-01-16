@@ -14,6 +14,7 @@ namespace Text_Editor
         CSHARP,
         VB,
         PROLOG, // unimplemented from here
-        HTML
+        HTML,
+        BONES
     }
 }
