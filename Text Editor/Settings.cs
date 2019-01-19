@@ -137,6 +137,14 @@ namespace Text_Editor
                     { "if", "else", "while", "float", "int", "for", "class", "string", ";",
                       "bool", "true", "false", "return", "void", "import" };
                     break;
+                case FileType.WACC:
+                    kw = new List<string>[1];
+                    kw[0] = new List<string>()
+                    { "if", "true", "false", "null", "len", "ord", "char", "string", "chr",
+                      "bool", "int", "skip", "read", "free", "return", "exit", "print",
+                      "println", "while", "then", "else", "fi", "do", "done", "begin", "end",
+                      "newpair", "call", "fst", "snd", "pair" };
+                    break;
                 case FileType.CSHARP:
                     kw = new List<string>[2]; //1
                     kw[0] = new List<string>()

@@ -381,6 +381,12 @@ namespace Text_Editor
             {
                 windows.ElementAt(activeIndex).getActive().setFileType(FileType.PROLOG);
             }
+            else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".wacc") &&
+                windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".wacc") ==
+                windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".wacc".Length)
+            {
+                windows.ElementAt(activeIndex).getActive().setFileType(FileType.WACC);
+            }
             else if (windows.ElementAt(activeIndex).getActive().getFilepath().Contains(".vb") &&
                 windows.ElementAt(activeIndex).getActive().getFilepath().LastIndexOf(".vb") ==
                 windows.ElementAt(activeIndex).getActive().getFilepath().Length - ".vb".Length)

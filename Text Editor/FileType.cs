@@ -13,6 +13,7 @@ namespace Text_Editor
         JAVA,
         CSHARP,
         VB,
+        WACC,
         PROLOG, // unimplemented from here
         HTML,
         BONES

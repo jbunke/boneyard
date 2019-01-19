@@ -56,14 +56,26 @@ namespace Text_Editor
                         {
                             // is a number
                             token += elem;
-                        } else if (elem == '/' && input.Length > i + 1 && input.ElementAt(i + 1) == '/') {
+                        }
+                        else if (elem == '/' && input.Length > i + 1 && input.ElementAt(i + 1) == '/')
+                        {
                             // is a comment
                             token += input.Substring(i);
                             res.Add(token);
                             token = "";
                             break;
-                        } else if (fileType == FileType.PROLOG && elem == '%') {
+                        }
+                        else if (fileType == FileType.PROLOG && elem == '%')
+                        {
                             // is a Prolog comment
+                            token += input.Substring(i);
+                            res.Add(token);
+                            token = "";
+                            break;
+                        }
+                        else if (fileType == FileType.WACC && elem == '#')
+                        {
+                            // is a WACC comment
                             token += input.Substring(i);
                             res.Add(token);
                             token = "";

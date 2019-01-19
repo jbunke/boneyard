@@ -78,6 +78,11 @@ namespace Text_Editor
             {
                 fileType = FileType.BONES;
             }
+            else if (filepath.Contains(".wacc") &&
+              filepath.LastIndexOf(".wacc") == filepath.Length - ".wacc".Length)
+            {
+                fileType = FileType.WACC;
+            }
             else if (filepath.Contains(".java") &&
                 filepath.LastIndexOf(".java") == filepath.Length - ".java".Length)
             {
@@ -489,6 +494,12 @@ namespace Text_Editor
                                             break;
                                         case FileType.VB:
                                             if (token.Length >= 1 && token.IndexOf("'") == 0)
+                                            {
+                                                c = Settings.getColor(Settings.Purpose.COMMENT);
+                                            }
+                                            break;
+                                        case FileType.WACC:
+                                            if (token.Length >= 1 && token.IndexOf("#") == 0)
                                             {
                                                 c = Settings.getColor(Settings.Purpose.COMMENT);
                                             }
